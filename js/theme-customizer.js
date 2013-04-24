@@ -11,19 +11,19 @@
 			$( '#top-menu a:hover .link_text, .current-menu-item > a, #top-menu .current-menu-item > a:hover, #top-menu .current-menu-item > a:hover .link_bg, .et_active_dropdown > li a, #top-menu .et_clicked, #mobile-nav' ).css( 'color', to );
 		} );
 	} );
-	
+
 	wp.customize( 'et_origin[sidebar_borders_color]', function( value ) {
 		value.bind( function( to ) {
 			$( '.widget, #top-menu a, #mobile-nav, #info-area, #info-bg, #top-menu' ).css( 'border-color', to );
 		} );
 	} );
-	
+
 	wp.customize( 'et_origin[sidebar_active_link_bg]', function( value ) {
 		value.bind( function( to ) {
 			$( '.current-menu-item > a, .et_active_dropdown > li a, #top-menu .et_clicked, #mobile-nav, #top-menu .link_bg, #top-menu .current-menu-item > a:hover, #top-menu .current-menu-item > a:hover .link_bg' ).css( 'background', to );
 		} );
 	} );
-	
+
 	wp.customize( 'et_origin[sidebar_dropdown_link_bg]', function( value ) {
 		value.bind( function( to ) {
 			$( '#top-menu ul ul .link_bg' ).css( 'background', to );

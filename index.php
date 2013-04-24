@@ -2,9 +2,9 @@
 
 <?php if ( have_posts() ) : ?>
 	<?php while ( have_posts() ) : the_post(); ?>
-	<?php 
+	<?php
 		$index_postinfo = et_get_option( 'origin_postinfo1' );
-		
+
 		$thumb = '';
 		$width = (int) apply_filters( 'et_entry_image_width', 640 );
 		$height = (int) apply_filters( 'et_entry_image_height', 480 );
@@ -34,10 +34,10 @@
 			</div> <!-- .image-info -->
 		</article> <!-- .entry-image -->
 	<?php endwhile; ?>
-	
+
 	<?php get_template_part( 'includes/navigation', 'index' ); ?>
 <?php else : ?>
 	<?php get_template_part( 'includes/no-results', 'index' ); ?>
 <?php endif; // end have_posts() check ?>
-	
+
 <?php get_footer(); ?>

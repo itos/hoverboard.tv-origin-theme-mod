@@ -1,3 +1,10 @@
+version 1.5 ( updated 04-02-2013 )
+- Integrated the default WordPress image system. It makes the theme work better on shared hostings and provides compatibility with plugins ( JetPack, WP Retina etc. ). Please, regenerate thumbnails after theme update ( http://wordpress.org/extend/plugins/regenerate-thumbnails/ ).
+- Full compatiblity with WPML plugin
+- Added 'Custom CSS' option to ePanel
+
+Nearly all files have been updated this time. Please, make sure you update all files.
+
 version 1.4 ( updated 02-04-2013 )
 - Fixed 'Disable top tier dropdown menu links' option
 	* js/custom.js

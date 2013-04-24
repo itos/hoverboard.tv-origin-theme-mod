@@ -4,11 +4,11 @@ jQuery(document).ready(function() {
 
 	jQuery('.upload_image_button').click(function() {
 		fileInput = jQuery(this).prev('input');
-		
-		et_tb_interval = setInterval( function() { 
-			jQuery('#TB_iframeContent').contents().find('.savesend .button').val( 'Use for Big Thumbnail' ); 
+
+		et_tb_interval = setInterval( function() {
+			jQuery('#TB_iframeContent').contents().find('.savesend .button').val( 'Use for Big Thumbnail' );
 		}, 2000 );
-		
+
 		formfield = jQuery('#upload_image').attr('name');
 		post_id = jQuery('#post_ID').val();
 		tb_show('', 'media-upload.php?post_id='+post_id+'&amp;type=image&amp;TB_iframe=true');
@@ -32,5 +32,5 @@ jQuery(document).ready(function() {
 			window.original_send_to_editor(html);
 		}
 	};
-	
+
 });

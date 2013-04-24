@@ -1,18 +1,18 @@
-<?php 
+<?php
 add_action( 'after_setup_theme', 'et_setup_theme' );
 if ( ! function_exists( 'et_setup_theme' ) ){
 	function et_setup_theme(){
 		global $themename, $shortname, $et_store_options_in_one_row, $default_colorscheme;
-		
+
 		$themename = 'Origin';
 		$shortname = 'origin';
 
 		$default_colorscheme = "Default";
-		
+
 		$template_directory = get_template_directory();
 		$et_store_options_in_one_row = true;
-	
-		require_once( $template_directory . '/epanel/custom_functions.php' ); 
+
+		require_once( $template_directory . '/epanel/custom_functions.php' );
 
 		require_once( $template_directory . '/includes/functions/comments.php' );
 
@@ -23,23 +23,23 @@ if ( ! function_exists( 'et_setup_theme' ) ){
 		require_once( $template_directory . '/epanel/core_functions.php' );
 
 		require_once( $template_directory . '/epanel/post_thumbnails_origin.php' );
-		
+
 		include( $template_directory . '/includes/widgets.php' );
-		
+
 		require_once( $template_directory . '/includes/additional_functions.php' );
-		
+
 		add_action( 'init', 'et_register_main_menus' );
-		
+
 		add_filter( 'wp_page_menu_args', 'et_add_home_link' );
-		
+
 		add_action( 'wp_enqueue_scripts', 'et_origin_load_scripts_styles' );
-		
+
 		add_action( 'wp_head', 'et_add_viewport_meta' );
-		
+
 		add_action( 'pre_get_posts', 'et_home_posts_query' );
-		
+
 		add_filter( 'et_get_additional_color_scheme', 'et_remove_additional_stylesheet' );
-		
+
 		add_action( 'wp_enqueue_scripts', 'et_add_responsive_shortcodes_css', 11 );
 	}
 }
@@ -60,9 +60,9 @@ function et_add_home_link( $args ) {
 
 function et_origin_load_scripts_styles(){
 	$template_dir = get_template_directory_uri();
-	
+
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) wp_enqueue_script( 'comment-reply' );
-	
+
 	if ( 'off' !== _x( 'on', 'Open Sans font: on or off', 'Origin' ) ) {
 		$subsets = 'latin,latin-ext';
 
@@ -82,16 +82,16 @@ function et_origin_load_scripts_styles(){
 			'family' => 'Open+Sans:300italic,700italic,800italic,400,300,700,800',
 			'subset' => $subsets
 		);
-		
+
 		wp_enqueue_style( 'origin-fonts', add_query_arg( $query_args, "$protocol://fonts.googleapis.com/css" ), array(), null );
 	}
 
 	wp_enqueue_script( 'fitvids', $template_dir . '/js/jquery.fitvids.js', array( 'jquery' ), '1.0', true );
 	wp_enqueue_script( 'infinitescroll', $template_dir . '/js/jquery.infinitescroll.js', array( 'jquery' ), '1.0', true );
 	wp_enqueue_script( 'custom_script', $template_dir . '/js/custom.js', array( 'jquery' ), '1.0', true );
-	
+
 	wp_localize_script( 'custom_script', 'et_origin_strings', array( 'load_posts' => __( 'Loading new posts...', 'Origin' ), 'no_posts' => __( 'No more posts to load', 'Origin' ) ) );
-	
+
 	/*
 	 * Loads the main stylesheet.
 	 */
@@ -113,13 +113,13 @@ function et_remove_additional_stylesheet( $stylesheet ){
 function et_home_posts_query( $query = false ) {
 	/* Don't proceed if it's not homepage or the main query */
 	if ( ! is_home() || ! is_a( $query, 'WP_Query' ) || ! $query->is_main_query() ) return;
-		
+
 	/* Set the amount of posts per page on homepage */
 	$query->set( 'posts_per_page', (int) et_get_option( 'origin_homepage_posts', '6' ) );
-	
+
 	/* Exclude categories set in ePanel */
 	$exclude_categories = et_get_option( 'origin_exlcats_recent', false );
-	if ( $exclude_categories ) $query->set( 'category__not_in', array_map( 'intval', $exclude_categories ) );
+	if ( $exclude_categories ) $query->set( 'category__not_in', array_map( 'intval', et_generate_wpml_ids( $exclude_categories, 'category' ) ) );
 }
 
 if ( ! function_exists( 'et_list_pings' ) ){
@@ -132,10 +132,10 @@ if ( ! function_exists( 'et_list_pings' ) ){
 if ( ! function_exists( 'et_get_the_author_posts_link' ) ){
 	function et_get_the_author_posts_link(){
 		global $authordata, $themename;
-		
+
 		$link = sprintf(
 			'<a href="%1$s" title="%2$s" rel="author">%3$s</a>',
-			get_author_posts_url( $authordata->ID, $authordata->user_nicename ),
+			esc_url( get_author_posts_url( $authordata->ID, $authordata->user_nicename ) ),
 			esc_attr( sprintf( __( 'Posts by %s', $themename ), get_the_author() ) ),
 			get_the_author()
 		);
@@ -146,19 +146,19 @@ if ( ! function_exists( 'et_get_the_author_posts_link' ) ){
 if ( ! function_exists( 'et_get_comments_popup_link' ) ){
 	function et_get_comments_popup_link( $zero = false, $one = false, $more = false ){
 		global $themename;
-		
+
 		$id = get_the_ID();
 		$number = get_comments_number( $id );
 
 		if ( 0 == $number && !comments_open() && !pings_open() ) return;
-		
+
 		if ( $number > 1 )
 			$output = str_replace('%', number_format_i18n($number), ( false === $more ) ? __('% Comments', $themename) : $more);
 		elseif ( $number == 0 )
 			$output = ( false === $zero ) ? __('No Comments',$themename) : $zero;
 		else // must be one
 			$output = ( false === $one ) ? __('1 Comment', $themename) : $one;
-			
+
 		return '<span class="comments-number">' . '<a href="' . esc_url( get_permalink() . '#respond' ) . '">' . apply_filters('comments_number', $output, $number) . '</a>' . '</span>';
 	}
 }
@@ -166,30 +166,30 @@ if ( ! function_exists( 'et_get_comments_popup_link' ) ){
 if ( ! function_exists( 'et_postinfo_meta' ) ){
 	function et_postinfo_meta( $postinfo, $date_format, $comment_zero, $comment_one, $comment_more ){
 		global $themename;
-		
+
 		$postinfo_meta = '';
-			
+
 		if ( in_array( 'date', $postinfo ) )
 			$postinfo_meta .= ' ' . ( is_single() ? esc_html__('on',$themename) . ' ' : '' ) . get_the_time( $date_format );
-			
+
 		if ( in_array( 'author', $postinfo ) )
 			$postinfo_meta .= ' ' . esc_html__('by',$themename) . ' ' . et_get_the_author_posts_link();
-			
+
 		if ( in_array( 'categories', $postinfo ) )
 			$postinfo_meta .= ' ' . esc_html__('in',$themename) . ' ' . get_the_category_list(', ');
-			
+
 		if ( in_array( 'comments', $postinfo ) )
 			$postinfo_meta .= ' | ' . et_get_comments_popup_link( $comment_zero, $comment_one, $comment_more );
-			
-		if ( '' != $postinfo_meta && is_single() ) $postinfo_meta = __('Posted',$themename) . ' ' . $postinfo_meta;	
-			
+
+		if ( '' != $postinfo_meta && is_single() ) $postinfo_meta = __('Posted',$themename) . ' ' . $postinfo_meta;
+
 		echo $postinfo_meta;
 	}
 }
 
 if ( function_exists( 'get_custom_header' ) ) {
 	// compatibility with versions of WordPress prior to 3.4
-	
+
 	add_action( 'customize_register', 'et_origin_customize_register' );
 	function et_origin_customize_register( $wp_customize ) {
 		$wp_customize->remove_section( 'title_tagline' );
@@ -206,7 +206,7 @@ if ( function_exists( 'get_custom_header' ) ) {
 			'section'	=> 'colors',
 			'settings'	=> 'et_origin[sidebar_bg_color]',
 		) ) );
-		
+
 		$wp_customize->add_setting( 'et_origin[sidebar_borders_color]', array(
 			'default'		=> '#5EA5A4',
 			'type'			=> 'option',
@@ -219,7 +219,7 @@ if ( function_exists( 'get_custom_header' ) ) {
 			'section'	=> 'colors',
 			'settings'	=> 'et_origin[sidebar_borders_color]',
 		) ) );
-		
+
 		$wp_customize->add_setting( 'et_origin[sidebar_active_link_bg]', array(
 			'default'		=> '#ffffff',
 			'type'			=> 'option',
@@ -232,7 +232,7 @@ if ( function_exists( 'get_custom_header' ) ) {
 			'section'	=> 'colors',
 			'settings'	=> 'et_origin[sidebar_active_link_bg]',
 		) ) );
-		
+
 		$wp_customize->add_setting( 'et_origin[sidebar_dropdown_link_bg]', array(
 			'default'		=> '#f8f8f8',
 			'type'			=> 'option',
@@ -258,15 +258,15 @@ if ( function_exists( 'get_custom_header' ) ) {
 		<style>
 			#info-bg, #main-wrap:before { background: <?php echo esc_html( et_get_option( 'sidebar_bg_color', '#6ab3b2' ) ); ?>; }
 			#top-menu a:hover .link_text, .current-menu-item > a, #top-menu .current-menu-item > a:hover, #top-menu .current-menu-item > a:hover .link_bg, .et_active_dropdown > li a, #top-menu .et_clicked, #mobile-nav { color: <?php echo esc_html( et_get_option( 'sidebar_bg_color', '#6ab3b2' ) ); ?>; }
-			
-			@media only screen and (max-width: 1023px){ 
+
+			@media only screen and (max-width: 1023px){
 				#info-area { background: <?php echo esc_html( et_get_option( 'sidebar_bg_color', '#6ab3b2' ) ); ?>; }
 			}
 
 			.widget, #top-menu a, #mobile-nav, #info-area, #info-bg, #top-menu { border-color: <?php echo esc_html( et_get_option( 'sidebar_borders_color', '#5EA5A4' ) ); ?>; }
-			
+
 			.current-menu-item > a, .et_active_dropdown > li a, #top-menu .et_clicked, #mobile-nav, #top-menu a:hover .link_bg, #top-menu .current-menu-item > a:hover, #top-menu .current-menu-item > a:hover .link_bg { background: <?php echo esc_html( et_get_option( 'sidebar_active_link_bg', '#fff' ) ); ?>; }
-			
+
 			#top-menu ul ul a:hover .link_bg { background: <?php echo esc_html( et_get_option( 'sidebar_dropdown_link_bg', '#f8f8f8' ) ); ?>; }
 		</style>
 	<?php }
@@ -274,15 +274,15 @@ if ( function_exists( 'get_custom_header' ) ) {
 
 function et_epanel_custom_colors_css(){
 	global $shortname; ?>
-	
+
 	<style type="text/css">
 		body { color: #<?php echo esc_html(et_get_option($shortname.'_color_mainfont')); ?>; }
 		#content-area a { color: #<?php echo esc_html(et_get_option($shortname.'_color_mainlink')); ?>; }
 		ul.nav li a { color: #<?php echo esc_html(et_get_option($shortname.'_color_pagelink')); ?> !important; }
 		ul.nav > li.current_page_item > a, ul#top-menu > li:hover > a, ul.nav > li.current-cat > a { color: #<?php echo esc_html(et_get_option($shortname.'_color_pagelink_active')); ?>; }
 		h1, h2, h3, h4, h5, h6, h1 a, h2 a, h3 a, h4 a, h5 a, h6 a { color: #<?php echo esc_html(et_get_option($shortname.'_color_headings')); ?>; }
-		
-		#sidebar a { color:#<?php echo esc_html(et_get_option($shortname.'_color_sidebar_links')); ?>; }		
+
+		#sidebar a { color:#<?php echo esc_html(et_get_option($shortname.'_color_sidebar_links')); ?>; }
 		.footer-widget { color:#<?php echo esc_html(et_get_option($shortname.'_footer_text')); ?> }
 		#footer a, ul#bottom-menu li a { color:#<?php echo esc_html(et_get_option($shortname.'_color_footerlinks')); ?> }
 	</style>
